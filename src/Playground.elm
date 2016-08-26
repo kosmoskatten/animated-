@@ -8,6 +8,7 @@ module Playground exposing
 import Char exposing (..)
 import Html as H
 import Html.Attributes as HA
+import Html.Events as HE
 import List exposing (map)
 import Random exposing (..)
 import String exposing (slice)
@@ -29,6 +30,8 @@ type alias Cell =
 type Msg
     = MouseOver String
     | MouseOut
+    | RandomCell
+    | NewCell Cell
 
 init : (Model, Cmd Msg)
 init = ({cells = [], hoovered = "-"}, Cmd.none)
@@ -44,7 +47,8 @@ view model =
             [ H.text model.hoovered
             , H.br [] []
             , H.button
-                [ HA.style [("background-color", "green")] 
+                [ HA.style [("background-color", "green")]
+                , HE.onClick RandomCell
                 ]
                 [ H.text "Random Cell"
                 ]
@@ -72,6 +76,8 @@ update msg model =
     case msg of
         MouseOver str -> ({model | hoovered = str}, Cmd.none)
         MouseOut      -> ({model | hoovered = "-"}, Cmd.none)
+        RandomCell    -> (model, Random.generate NewCell randomCell)
+        NewCell cell  -> ({model | cells = cell :: model.cells}, Cmd.none)
 
 subscriptions : Model -> Sub Msg
 subscriptions model = Sub.none
