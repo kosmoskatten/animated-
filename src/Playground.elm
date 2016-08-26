@@ -22,7 +22,8 @@ type alias Model =
     }
 
 type alias Cell =
-    { name : String
+    { editing : Bool
+    , name : String
     , posX : Int
     , posY : Int
     }
@@ -41,7 +42,7 @@ view model =
     H.div [backgroundStyle]
         [ H.div [widgetPaneStyle]
             [ S.svg [ SA.viewBox "0 0 1000 1000" ]
-                  (List.map (\c -> viewCell c.name c.posX c.posY) model.cells)
+                  (List.map viewCell model.cells)
             ]
         , H.div [controlPaneStyle]
             [ H.text model.hoovered
@@ -55,21 +56,28 @@ view model =
             ]
         ]
 
-viewCell : String -> Int -> Int -> S.Svg Msg
-viewCell name x y =
-    S.g [ SE.onMouseOver (MouseOver name)
-        , SE.onMouseOut MouseOut
-        ]
-        [ S.circle
-              [ SA.cx (toString x), SA.cy (toString y), SA.r "80"
-              , SA.stroke "black", SA.strokeWidth "2"
-              , SA.fill "none"
-              ] []
-        , S.circle
-            [ SA.cx (toString x), SA.cy (toString y), SA.r "5"
-            , SA.fill "blue"
-            ] []
-        ]
+viewCell : Cell -> S.Svg Msg
+viewCell cell =
+    let strX = toString cell.posX
+        strY = toString cell.posY
+        editingStyle = if cell.editing
+                           then [SA.strokeDasharray "5,5"]
+                           else []
+    in
+        S.g [ SE.onMouseOver (MouseOver cell.name)
+            , SE.onMouseOut MouseOut
+            ]
+            [ S.circle
+                  ([ SA.cx strX, SA.cy strY, SA.r "80"
+                   , SA.stroke "black", SA.strokeWidth "2"
+                   , SA.fill "none"
+                   ] ++ editingStyle)
+                  []
+            , S.circle
+                [ SA.cx strX, SA.cy strY, SA.r "5"
+                , SA.fill "blue"
+                ] []
+            ]
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
@@ -108,7 +116,7 @@ controlPaneStyle =
         ]
 
 randomCell : Generator Cell
-randomCell = Random.map3 Cell cellName pos pos
+randomCell = Random.map3 (Cell True) cellName pos pos
 
 cellName : Generator String
 cellName =
