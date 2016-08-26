@@ -19,6 +19,7 @@ import Svg.Events as SE
 type alias Model =
     { cells : List Cell
     , hoovered : String
+    , edited : Maybe Cell
     }
 
 type alias Cell =
@@ -35,7 +36,7 @@ type Msg
     | NewCell Cell
 
 init : (Model, Cmd Msg)
-init = ({cells = [], hoovered = "-"}, Cmd.none)
+init = ({cells = [], hoovered = "-", edited = Nothing}, Cmd.none)
 
 view : Model -> H.Html Msg
 view model =
